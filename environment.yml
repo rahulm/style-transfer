@@ -51,5 +51,3 @@ dependencies:
   - wincertstore=0.2=py37_0
   - wrapt=1.11.2=py37he774522_0
   - zlib=1.2.11=h62dcd97_3
-prefix: C:\Users\rahul\Anaconda3\envs\styletransfer
-
