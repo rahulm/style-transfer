@@ -189,10 +189,10 @@ def run():
   numDigits = np.log10(numIters) + 1
   formatString = "gen-{:0" + str(int(numDigits)) + "d}.png"
   for iter in range(numIters):
-    print("Iter: {}/{}".format(iter, numIters))
+    print("Iter: {}/{}".format(iter + 1, numIters))
     genStep(model, opt, targets, weights, genImage)
     if ((iter % saveInterval) == 0):
-      saveImage(genImage[0], os.path.join(outDir, formatString.format(iter)))
+      saveImage(genImage[0], os.path.join(outDir, formatString.format(iter + 1)))
   
   # save final image
   saveImage(genImage[0], os.path.join(outDir, "_generated.png"))
