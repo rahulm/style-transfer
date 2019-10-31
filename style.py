@@ -34,6 +34,13 @@ def readArgs():
     help = "Number of iterations to run."
   )
   
+  parser.add_argument(
+    "--interval",
+    required = False, type = int, default = 10,
+    help = "Iteration interval when image checkpoints should be saved.\
+            Ex: a value of 1 saves an image at every iteration."
+  )
+  
   args = parser.parse_args()
   
   # make outdir
@@ -136,6 +143,7 @@ def run():
   args = readArgs()
   outDir = args.outdir
   numIters = args.iters
+  saveInterval = args.interval
   
   # load images
   contentImg, styleImg = loadImage(args.content), loadImage(args.style)
@@ -166,7 +174,7 @@ def run():
     "style" : 1e-2
   }
   
-  print(">>> STARTING TRAINING")
+  print(">>> STARTING GENERATION")
   
   # define the image to generate, starting with the content image
   genImage = tf.Variable(tf.expand_dims(contentImg, 0))
