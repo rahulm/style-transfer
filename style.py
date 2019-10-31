@@ -180,11 +180,15 @@ def run():
   genImage = tf.Variable(tf.expand_dims(contentImg, 0))
   
   # generate image
-  genStep(model, opt, targets, weights, genImage)
-  genStep(model, opt, targets, weights, genImage)
-  genStep(model, opt, targets, weights, genImage)
-  genStep(model, opt, targets, weights, genImage)
-  saveImage(genImage[0], "test.png")
+  numDigits = np.log10(numIters) + 1
+  formatString = "gen-{:0" + str(int(numDigits)) + "d}.png"
+  for iter in range(numIters):
+    genStep(model, opt, targets, weights, genImage)
+    if ((iter % saveInterval) == 0):
+      saveImage(genImage[0], os.path.join(outDir, formatString.format(iter)))
+  
+  # save final image
+  saveImage(genImage[0], os.path.join(outDir, "_generated.png"))
   
   print("Done")
   
