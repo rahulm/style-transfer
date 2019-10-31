@@ -100,13 +100,10 @@ def totalLoss(targetValues, genOutputs, lossWeights):
 
 
 class StyleTransferModel(tf.keras.Model):
-  def __init__(self, contentLayers, styleLayers):
+  def __init__(self, modelInfo):
     super(StyleTransferModel, self).__init__()
     
-    self.customLayers = {
-      "content" : contentLayers,
-      "style" : styleLayers
-    }
+    self.modelInfo = modelInfo
     
     # create custom model that returns appropriate layers
     self.customModel = tf.keras.applications.VGG19(include_top = False, weights = "imagenet")
@@ -115,9 +112,9 @@ class StyleTransferModel(tf.keras.Model):
       {
         customName : {
           layerName : self.customModel.get_layer(layerName).output
-          for layerName in self.customLayers[customName]
+          for layerName in self.modelInfo["layers"][customName]
         }
-        for customName in self.customLayers.keys()
+        for customName in self.modelInfo["layers"].keys()
       }
     )
     self.customModel.trainable = False
@@ -131,7 +128,7 @@ class StyleTransferModel(tf.keras.Model):
     # apply gram matrix to styles
     outputs["style"] = {
       styleLayerName : gramMatrix(outputs["style"][styleLayerName])
-      for styleLayerName in self.customLayers["style"]
+      for styleLayerName in self.modelInfo["layers"]["style"]
     }
     
     return outputs
@@ -159,18 +156,40 @@ def run():
   numIters = args.iters
   saveInterval = args.interval
   
-  # set content layers and style layers for VGG19
-  contentLayers = ["block5_conv2"]
-  styleLayers = [
-    "block1_conv1",
-    "block2_conv1",
-    "block3_conv1",
-    "block4_conv1",
-    "block5_conv1"
-  ]
+  ALLMODELS = {
+    "vgg19" : {
+      "name" : "vgg19",
+      "layers" : {
+        "content" : ["block5_conv2"],
+        "style" : [
+          "block1_conv1",
+          "block2_conv1",
+          "block3_conv1",
+          "block4_conv1",
+          "block5_conv1"
+        ]
+      }
+    },
+    
+    "vgg16" : {
+      "name" : "vgg16",
+      "layers" : {
+        "content" : ["block2_conv2"],
+        "style" : [
+          "block1_conv2",
+          "block2_conv2",
+          "block3_conv3",
+          "block4_conv3",
+          "block5_conv3"
+        ]
+      }
+    }
+  }
+  
+  modelInfo = ALLMODELS[args.model]
   
   # create model
-  model = StyleTransferModel(contentLayers, styleLayers)
+  model = StyleTransferModel(modelInfo)
   opt = tf.optimizers.Adam(learning_rate = 0.02, beta_1 = 0.99, epsilon = 1e-1)
   weights = {
     "content" : 1e4,
@@ -198,9 +217,9 @@ def run():
     b = {
       "title" : "Model Information",
       "lines" : [
-        ["", {"name" : "model name", "val" : "vgg19"}],
-        ["", {"name" : "content layers", "val" : contentLayers}],
-        ["", {"name" : "style layers", "val" : styleLayers}],
+        ["", {"name" : "model name", "val" : str(modelInfo["name"])}],
+        ["", {"name" : "content layers", "val" : list(modelInfo["layers"]["content"]) }],
+        ["", {"name" : "style layers", "val" : list(modelInfo["layers"]["style"]) }],
       ]
     }
     maxLen = max(len(bargs["name"]) for _, bargs in b["lines"])
