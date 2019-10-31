@@ -88,10 +88,22 @@ def saveImage(img, path):
 def run():
   print("Style Transfer")
   
+  # parse arguments
   args = readArgs()
   print(args)
+  
+  outDir = args.outdir
+  numIters = args.iterations
+  
+  # load images
   contentImg, styleImg = loadImage(args.content), loadImage(args.style)
-  saveImage(contentImg, "test.jpg")
+  saveImage(contentImg, os.path.join(outDir, "_content.png"))
+  saveImage(styleImg, os.path.join(outDir, "_style.png"))
+  
+  
+  
+  
+  
   
   print("Done")
   
