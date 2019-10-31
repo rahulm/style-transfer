@@ -64,6 +64,11 @@ def saveImage(img, path):
   imgNp = (img * 255).numpy().astype(np.uint8)
   Image.fromarray(imgNp).save(path)
 
+def writeBlockToFile(file, block):
+  file.write("--- {} ---\n".format(block["title"]))
+  for lineFormat, lineArgs in block["lines"]:
+    file.write(lineFormat.format(lineFormat, **lineArgs))
+  file.write("--- ---\n\n")
 
 def gramMatrix(input):
   res = tf.linalg.einsum("bijc,bijd->bcd", input, input)
@@ -147,11 +152,6 @@ def run():
   numIters = args.iters
   saveInterval = args.interval
   
-  # load images
-  contentImg, styleImg = loadImage(args.content), loadImage(args.style)
-  saveImage(contentImg, os.path.join(outDir, "_content.png"))
-  saveImage(styleImg, os.path.join(outDir, "_style.png"))
-  
   # set content layers and style layers for VGG19
   contentLayers = ["block5_conv2"]
   styleLayers = [
@@ -165,16 +165,71 @@ def run():
   # create model
   model = StyleTransferModel(contentLayers, styleLayers)
   opt = tf.optimizers.Adam(learning_rate = 0.02, beta_1 = 0.99, epsilon = 1e-1)
+  weights = {
+    "content" : 1e4,
+    "style" : 1e-2,
+    "variation" : 30
+  }
+  
+  # save arguments, hyper-parameters, etc.
+  with open(os.path.join(outDir, "_args.txt"), "w") as argFile:
+    argFile.write("Style Transfer\n\n")
+    argFile.write(str(args) + "\n\n")
+    blocks = []
+    
+    # image information
+    b = {
+      "title" : "Image Information",
+      "lines" : [
+        ("{name: <16} | {val}\n", {"name" : "content image", "val" : args.content}),
+        ("{name: <16} | {val}\n", {"name" : "style image", "val" : args.style}),
+        ("{name: <16} | {val}\n", {"name" : "output directory", "val" : outDir}),
+      ]
+    }
+    blocks.append(b)
+    
+    b = {
+      "title" : "Model Information",
+      "lines" : [
+        ["", {"name" : "model name", "val" : "vgg19"}],
+        ["", {"name" : "content layers", "val" : contentLayers}],
+        ["", {"name" : "style layers", "val" : styleLayers}],
+      ]
+    }
+    maxLen = max(len(bargs["name"]) for _, bargs in b["lines"])
+    formatString = "{name: <" + str(maxLen) + "} | {val}\n"
+    for bline in b["lines"]:
+      bline[0] = formatString
+    blocks.append(b)
+    
+    b = {
+      "title" : "Generation Information",
+      "lines" : [
+        ["", {"name" : "iterations", "val" : numIters}],
+        ["", {"name" : "save interval", "val" : saveInterval}],
+        ["", {"name" : "loss weights", "val" : weights}],
+        ["", {"name" : "optimizer", "val" : "{}: {}".format(opt._name, opt._hyper)}],
+      ]
+    }
+    maxLen = max(len(bargs["name"]) for _, bargs in b["lines"])
+    formatString = "{name: <" + str(maxLen) + "} | {val}\n"
+    for bline in b["lines"]:
+      bline[0] = formatString
+    blocks.append(b)
+    
+    for block in blocks:
+      writeBlockToFile(argFile, block)
+    argFile.flush()
+  
+  # load images
+  contentImg, styleImg = loadImage(args.content), loadImage(args.style)
+  saveImage(contentImg, os.path.join(outDir, "_content.png"))
+  saveImage(styleImg, os.path.join(outDir, "_style.png"))  
   
   # get the initial style and content layer values
   targets = {
     "content" : model(tf.expand_dims(contentImg, 0))["content"],
     "style" : model(tf.expand_dims(styleImg, 0))["style"]
-  }
-  weights = {
-    "content" : 1e4,
-    "style" : 1e-2,
-    "variation" : 30
   }
   
   print(">>> STARTING GENERATION")
