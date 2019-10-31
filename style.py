@@ -133,6 +133,7 @@ def genStep(model, opt, targets, weights, img):
   with tf.GradientTape() as tape:
     outputs = model(img)
     loss = totalLoss(targets, outputs, weights)
+    loss += (weights["variation"] * tf.image.total_variation(img))
   grad = tape.gradient(loss, img)
   opt.apply_gradients([(grad, img)])
   img.assign(clip01(img))
@@ -172,7 +173,8 @@ def run():
   }
   weights = {
     "content" : 1e4,
-    "style" : 1e-2
+    "style" : 1e-2,
+    "variation" : 30
   }
   
   print(">>> STARTING GENERATION")
