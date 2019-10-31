@@ -193,7 +193,7 @@ def run():
       "weights" : {
         "content" : 0,
         "style" : 1,
-        "variation" : 0
+        "variation" : 1
       }
       
       # "weights" : {
@@ -218,7 +218,7 @@ def run():
       "weights" : {
         "content" : 0,
         "style" : 1,
-        "variation" : 0
+        "variation" : 1
       }
       
       # "weights" : {
