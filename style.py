@@ -1,5 +1,6 @@
 import argparse
 import os
+import time
 import numpy as np
 from PIL import Image
 import tensorflow as tf
@@ -179,6 +180,9 @@ def run():
   # define the image to generate, starting with the content image
   genImage = tf.Variable(tf.expand_dims(contentImg, 0))
   
+  
+  startTime = time.time()
+  
   # generate image
   numDigits = np.log10(numIters) + 1
   formatString = "gen-{:0" + str(int(numDigits)) + "d}.png"
@@ -191,7 +195,8 @@ def run():
   # save final image
   saveImage(genImage[0], os.path.join(outDir, "_generated.png"))
   
-  print("Done")
+  endTime = time.time()
+  print("Total gen time (s): {:.1f}".format(endTime - startTime))
   
 
 
