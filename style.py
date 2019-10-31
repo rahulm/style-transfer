@@ -55,6 +55,12 @@ def readArgs():
     help = "The ratio of loss weights, =content/style"
   )
   
+  parser.add_argument(
+    "--varloss",
+    required = False, type = float, default = None,
+    help = "The weight to place on the total variation loss (on high frequency artifacts)."
+  )
+  
   args = parser.parse_args()
   
   # make outdir
@@ -213,6 +219,8 @@ def run():
   if args.csratio is not None:
     modelInfo["weights"]["content"] = float(args.csratio) / float(1 + args.csratio)
     modelInfo["weights"]["style"] = (1 - modelInfo["weights"]["content"])
+  if args.varloss is not None:
+    modelInfo["weights"]["variation"] = float(args.varloss)
   
   # create model
   model = StyleTransferModel(modelInfo)
