@@ -42,6 +42,13 @@ def readArgs():
             Ex: a value of 1 saves an image at every iteration."
   )
   
+  parser.add_argument(
+    "--model",
+    required = False, type = str, default = "vgg19",
+    choices = ("vgg19", "vgg16"),
+    help = "Pretrained model to use during generation. Select from: %(choices)s"
+  )
+  
   args = parser.parse_args()
   
   # make outdir
