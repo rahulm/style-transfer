@@ -57,7 +57,7 @@ def readArgs():
   )
   
   parser.add_argument(
-    "--iterations",
+    "--iters",
     required = True, type = int,
     help = "Number of iterations to run."
   )
@@ -93,7 +93,7 @@ def run():
   print(args)
   
   outDir = args.outdir
-  numIters = args.iterations
+  numIters = args.iters
   
   # load images
   contentImg, styleImg = loadImage(args.content), loadImage(args.style)
