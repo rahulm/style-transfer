@@ -106,7 +106,14 @@ class StyleTransferModel(tf.keras.Model):
     self.modelInfo = modelInfo
     
     # create custom model that returns appropriate layers
-    self.customModel = tf.keras.applications.VGG19(include_top = False, weights = "imagenet")
+    if self.modelInfo["name"] == "vgg16":
+      self.customModel = tf.keras.applications.VGG16(include_top = False, weights = "imagenet")
+    elif self.modelInfo["name"] == "vgg19":
+      self.customModel = tf.keras.applications.VGG19(include_top = False, weights = "imagenet")
+    else:
+      print("Model {} not supported.".format(self.modelInfo["name"]))
+      exit(1)
+    
     self.customModel = tf.keras.Model(
       [self.customModel.input],
       {
