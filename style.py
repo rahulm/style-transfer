@@ -3,6 +3,7 @@ import os
 import time
 import numpy as np
 from PIL import Image
+import matplotlib.pyplot as plt
 import tensorflow as tf
 
 
@@ -346,11 +347,18 @@ def run():
     argFile.flush()
   
   # save loss history
-  with open(os.path.join(outDir, "_losses.csv"), "w") as lossFile:
+  with open(os.path.join(outDir, "_loss_vals.csv"), "w") as lossFile:
     lossFile.write("iteration,loss\n")
     for iter, loss in enumerate(lossHistory):
       lossFile.write("{},{}\n".format(iter + 1, loss))
     lossFile.flush()
+  
+  # plot loss history
+  plt.plot(range(1, numIters + 1), lossHistory)
+  plt.xlabel("iterations")
+  plt.ylabel("loss")
+  plt.title("Loss During Generation")
+  plt.savefig(os.path.join(outDir, "_loss_plot.png"))
   
 
 if __name__ == "__main__":
