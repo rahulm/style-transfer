@@ -309,16 +309,20 @@ def run():
   genImage = tf.Variable(tf.expand_dims(contentImg, 0))
   
   
-  startTime = time.time()
+  
   
   # setup generation
-  lossHistory = []
   numDigits = int(np.log10(numIters) + 1)
   fileFormatString = "gen-{:0" + str(numDigits) + "d}.png"
   numCharsInPrefix = (2 * numDigits) + 1
   prefixFormatString = "Iter {0: <" + str(numCharsInPrefix) + "}: "
+  
+  # setup loss history
+  lossHistory = []
   lossHistoryFile = open(os.path.join(outDir, "_loss_vals.csv"), "w")
   lossHistoryFile.write("iteration,loss\n")
+  
+  startTime = time.time()
   
   # perform generation
   for iter in range(numIters):
