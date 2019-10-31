@@ -310,18 +310,30 @@ def run():
   
   startTime = time.time()
   
-  # generate image
+  # setup generation
+  lossHistory = []
   numDigits = np.log10(numIters) + 1
   fileFormatString = "gen-{:0" + str(int(numDigits)) + "d}.png"
   numCharsInPrefix = (2 * numDigits) + 1
   prefixFormatString = "Iter {0: <" + str(numCharsInPrefix) + "}: "
+  
+  # perform generation
   for iter in range(numIters):
-    # print("Iter {}/{}:".format(iter + 1, numIters), end = "")
+    # logging
     print(prefixFormatString.format("{}/{}".format(iter + 1, numIters)), end = "")
+    
+    # perform step
     loss = genStep(model, opt, modelInfo["weights"], targets, genImage)
+    
+    # record loss
+    lossVal = loss.numpy()[0]
+    lossHistory.append(lossVal)
+    print(str(lossVal))
+    
+    # save image if needed
     if ((iter % saveInterval) == 0):
       saveImage(genImage[0], os.path.join(outDir, fileFormatString.format(iter + 1)))
-    print(str(loss.numpy()[0]))
+  
   
   # save final image
   saveImage(genImage[0], os.path.join(outDir, "_generated.png"))
@@ -332,7 +344,14 @@ def run():
   with open(os.path.join(outDir, "_args.txt"), "a") as argFile:
     argFile.write("\n\nTotal Generation Time (s): {:.1f}\n\n".format(endTime - startTime))
     argFile.flush()
-
+  
+  # save loss history
+  with open(os.path.join(outDir, "_losses.csv"), "w") as lossFile:
+    lossFile.write("iteration,loss\n")
+    for iter, loss in enumerate(lossHistory):
+      lossFile.write("{},{}\n".format(iter + 1, loss))
+    lossFile.flush()
+  
 
 if __name__ == "__main__":
   run()
