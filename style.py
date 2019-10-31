@@ -189,10 +189,16 @@ def run():
         ]
       },
       "weights" : {
-        "content" : 1e4,
-        "style" : 1e-2,
-        "variation" : 30
+        "content" : 0,
+        "style" : 1,
+        "variation" : 0
       }
+      
+      # "weights" : {
+        # "content" : 1e4,
+        # "style" : 1e-2,
+        # "variation" : 30
+      # }
     },
     
     "vgg16" : {
@@ -208,10 +214,16 @@ def run():
         ]
       },
       "weights" : {
-        "content" : 0.02,
-        "style" : 4.5,
-        "variation" : 1e-5
+        "content" : 0,
+        "style" : 1,
+        "variation" : 0
       }
+      
+      # "weights" : {
+        # "content" : 0.02,
+        # "style" : 4.5,
+        # "variation" : 1e-5
+      # }
     }
   }
   
