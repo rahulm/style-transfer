@@ -255,6 +255,9 @@ def run():
   endTime = time.time()
   print("Total gen time (s): {:.1f}".format(endTime - startTime))
   
+  with open(os.path.join(outDir, "_args.txt"), "a") as argFile:
+    argFile.write("\n\nTotal Generation Time (s): {:.1f}\n\n".format(endTime - startTime))
+    argFile.flush()
 
 
 if __name__ == "__main__":
