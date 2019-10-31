@@ -317,6 +317,8 @@ def run():
   fileFormatString = "gen-{:0" + str(numDigits) + "d}.png"
   numCharsInPrefix = (2 * numDigits) + 1
   prefixFormatString = "Iter {0: <" + str(numCharsInPrefix) + "}: "
+  lossHistoryFile = open(os.path.join(outDir, "_loss_vals.csv"), "w")
+  lossHistoryFile.write("iteration,loss\n")
   
   # perform generation
   for iter in range(numIters):
@@ -329,6 +331,7 @@ def run():
     # record loss
     lossVal = loss.numpy()[0]
     lossHistory.append(lossVal)
+    lossHistoryFile.write("{},{}\n".format(iter + 1, lossVal))
     print(str(lossVal))
     
     # save image if needed
@@ -346,12 +349,9 @@ def run():
     argFile.write("\n\nTotal Generation Time (s): {:.1f}\n\n".format(endTime - startTime))
     argFile.flush()
   
-  # save loss history
-  with open(os.path.join(outDir, "_loss_vals.csv"), "w") as lossFile:
-    lossFile.write("iteration,loss\n")
-    for iter, loss in enumerate(lossHistory):
-      lossFile.write("{},{}\n".format(iter + 1, loss))
-    lossFile.flush()
+  # close loss history file
+  lossHistoryFile.flush()
+  lossHistoryFile.close()
   
   # plot loss history
   plt.plot(range(1, numIters + 1), lossHistory)
