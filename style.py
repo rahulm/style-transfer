@@ -313,8 +313,8 @@ def run():
   
   # setup generation
   lossHistory = []
-  numDigits = np.log10(numIters) + 1
-  fileFormatString = "gen-{:0" + str(int(numDigits)) + "d}.png"
+  numDigits = int(np.log10(numIters) + 1)
+  fileFormatString = "gen-{:0" + str(numDigits) + "d}.png"
   numCharsInPrefix = (2 * numDigits) + 1
   prefixFormatString = "Iter {0: <" + str(numCharsInPrefix) + "}: "
   
