@@ -49,6 +49,12 @@ def readArgs():
     help = "Pretrained model to use during generation. Select from: %(choices)s"
   )
   
+  parser.add_argument(
+    "--csratio",
+    required = False, type = float, default = None,
+    help = "The ratio of loss weights, =content/style"
+  )
+  
   args = parser.parse_args()
   
   # make outdir
@@ -204,11 +210,14 @@ def run():
   }
   
   modelInfo = ALLMODELS[args.model]
+  if args.csratio is not None:
+    modelInfo["weights"]["content"] = float(args.csratio) / float(1 + args.csratio)
+    modelInfo["weights"]["style"] = (1 - modelInfo["weights"]["content"])
   
   # create model
   model = StyleTransferModel(modelInfo)
-  # opt = tf.optimizers.Adam(learning_rate = 0.02, beta_1 = 0.99, epsilon = 1e-1)
-  opt = tf.optimizers.Adam(learning_rate = 1e-3, beta_1 = 0.99, epsilon = 1e-1)
+  opt = tf.optimizers.Adam(learning_rate = 0.02, beta_1 = 0.99, epsilon = 1e-1)
+  # opt = tf.optimizers.Adam(learning_rate = 1e-3, beta_1 = 0.99, epsilon = 1e-1)
   
   # save arguments, hyper-parameters, etc.
   with open(os.path.join(outDir, "_args.txt"), "w") as argFile:
