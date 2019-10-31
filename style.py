@@ -158,6 +158,7 @@ def clip01(img):
 
 @tf.function()
 def genStep(model, opt, weights, targets, img):
+  loss = 0.0
   with tf.GradientTape() as tape:
     outputs = model(img)
     loss = totalLoss(targets, outputs, weights)
@@ -165,6 +166,7 @@ def genStep(model, opt, weights, targets, img):
   grad = tape.gradient(loss, img)
   opt.apply_gradients([(grad, img)])
   img.assign(clip01(img))
+  return loss
 
 def run():
   print("Style Transfer")
@@ -310,12 +312,16 @@ def run():
   
   # generate image
   numDigits = np.log10(numIters) + 1
-  formatString = "gen-{:0" + str(int(numDigits)) + "d}.png"
+  fileFormatString = "gen-{:0" + str(int(numDigits)) + "d}.png"
+  numCharsInPrefix = (2 * numDigits) + 1
+  prefixFormatString = "Iter {0: <" + str(numCharsInPrefix) + "}: "
   for iter in range(numIters):
-    print("Iter: {}/{}".format(iter + 1, numIters))
-    genStep(model, opt, modelInfo["weights"], targets, genImage)
+    # print("Iter {}/{}:".format(iter + 1, numIters), end = "")
+    print(prefixFormatString.format("{}/{}".format(iter + 1, numIters)), end = "")
+    loss = genStep(model, opt, modelInfo["weights"], targets, genImage)
     if ((iter % saveInterval) == 0):
-      saveImage(genImage[0], os.path.join(outDir, formatString.format(iter + 1)))
+      saveImage(genImage[0], os.path.join(outDir, fileFormatString.format(iter + 1)))
+    print(str(loss.numpy()[0]))
   
   # save final image
   saveImage(genImage[0], os.path.join(outDir, "_generated.png"))
