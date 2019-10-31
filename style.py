@@ -145,7 +145,7 @@ def clip01(img):
   return tf.clip_by_value(img, clip_value_min = 0.0, clip_value_max = 1.0)
 
 @tf.function()
-def genStep(model, opt, targets, weights, img):
+def genStep(model, opt, weights, targets, img):
   with tf.GradientTape() as tape:
     outputs = model(img)
     loss = totalLoss(targets, outputs, weights)
@@ -175,6 +175,11 @@ def run():
           "block4_conv1",
           "block5_conv1"
         ]
+      },
+      "weights" : {
+        "content" : 1e4,
+        "style" : 1e-2,
+        "variation" : 30
       }
     },
     
@@ -189,6 +194,11 @@ def run():
           "block4_conv3",
           "block5_conv3"
         ]
+      },
+      "weights" : {
+        "content" : 0.02,
+        "style" : 4.5,
+        "variation" : 1e-5
       }
     }
   }
@@ -197,12 +207,8 @@ def run():
   
   # create model
   model = StyleTransferModel(modelInfo)
-  opt = tf.optimizers.Adam(learning_rate = 0.02, beta_1 = 0.99, epsilon = 1e-1)
-  weights = {
-    "content" : 1e4,
-    "style" : 1e-2,
-    "variation" : 30
-  }
+  # opt = tf.optimizers.Adam(learning_rate = 0.02, beta_1 = 0.99, epsilon = 1e-1)
+  opt = tf.optimizers.Adam(learning_rate = 1e-3, beta_1 = 0.99, epsilon = 1e-1)
   
   # save arguments, hyper-parameters, etc.
   with open(os.path.join(outDir, "_args.txt"), "w") as argFile:
@@ -227,6 +233,7 @@ def run():
         ["", {"name" : "model name", "val" : str(modelInfo["name"])}],
         ["", {"name" : "content layers", "val" : list(modelInfo["layers"]["content"]) }],
         ["", {"name" : "style layers", "val" : list(modelInfo["layers"]["style"]) }],
+        ["", {"name" : "weights", "val" : modelInfo["weights"] }],
       ]
     }
     maxLen = max(len(bargs["name"]) for _, bargs in b["lines"])
@@ -240,7 +247,6 @@ def run():
       "lines" : [
         ["", {"name" : "iterations", "val" : numIters}],
         ["", {"name" : "save interval", "val" : saveInterval}],
-        ["", {"name" : "loss weights", "val" : weights}],
         ["", {"name" : "optimizer", "val" : "{}: {}".format(opt._name, opt._hyper)}],
       ]
     }
@@ -278,7 +284,7 @@ def run():
   formatString = "gen-{:0" + str(int(numDigits)) + "d}.png"
   for iter in range(numIters):
     print("Iter: {}/{}".format(iter + 1, numIters))
-    genStep(model, opt, targets, weights, genImage)
+    genStep(model, opt, modelInfo["weights"], targets, genImage)
     if ((iter % saveInterval) == 0):
       saveImage(genImage[0], os.path.join(outDir, formatString.format(iter + 1)))
   
