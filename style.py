@@ -1,5 +1,8 @@
 import argparse
 import os
+import numpy as np
+from PIL import Image
+import tensorflow as tf
 
 # import tensorflow as tf
 
@@ -71,8 +74,15 @@ def readArgs():
   return args
   
 
-def readImage(imgPath):
-  return None
+def loadImage(imgPath):
+  img = tf.io.read_file(imgPath)
+  img = tf.image.decode_image(img, channels = 3)
+  img = tf.image.convert_image_dtype(img, tf.float32)
+  return img
+
+def saveImage(img, path):
+  imgNp = (img * 255).numpy().astype(np.uint8)
+  Image.fromarray(imgNp).save(path)
 
 
 def run():
@@ -80,8 +90,8 @@ def run():
   
   args = readArgs()
   print(args)
-  contentImg, styleImg = readImage(args.content), readImage(args.style)
-  
+  contentImg, styleImg = loadImage(args.content), loadImage(args.style)
+  saveImage(contentImg, "test.jpg")
   
   print("Done")
   
