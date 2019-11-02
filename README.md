@@ -36,6 +36,31 @@ optional arguments:
 ```
 
 
-### Inspired By
+## Examples
+
+The following are a few examples of a family photo styled with the vgg16 network with hyperparameters determined through qualitative experimentation for each content/style image pair.
+
+| Style | Content | Generated |
+| ----- | ------- | ----------|
+| <img src="examples/fam1_small-level4_room10/style.png"/> | <img src="examples/fam1_small-level4_room10/content.png"/> | <img src="examples/fam1_small-level4_room10/generated.png"/> |
+| <img src="examples/fam1_small-starry_night_medium/style.png"/> | <img src="examples/fam1_small-starry_night_medium/content.png"/> | <img src="examples/fam1_small-starry_night_medium/generated.png"/> |
+
+
+Some of the generation/styling processes themselves are included below:
+
+<table>
+  <tr>
+    <td>
+      <img src="examples/fam1_small-level4_room10/anim.gif"/>
+    </td>
+    <td>
+      <img src="examples/fam1_small-starry_night_medium/anim.gif"/>
+    </td>
+  </tr>
+</table>
+
+
+
+## Inspired By
 - [*A Neural Algorithm of Style* by Gatys et al](https://arxiv.org/abs/1508.06576)
 - [TensorFlow Neural Style Transfer Tutorial](https://www.tensorflow.org/tutorials/generative/style_transfer)
